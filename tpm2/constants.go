@@ -397,6 +397,7 @@ const (
 	TagNull           tpmutil.Tag = 0x8000
 	TagNoSessions     tpmutil.Tag = 0x8001
 	TagSessions       tpmutil.Tag = 0x8002
+	TagAttestNv       tpmutil.Tag = 0x8014
 	TagAttestCertify  tpmutil.Tag = 0x8017
 	TagAttestQuote    tpmutil.Tag = 0x8018
 	TagAttestCreation tpmutil.Tag = 0x801a

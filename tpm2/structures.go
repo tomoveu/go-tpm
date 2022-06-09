@@ -657,6 +657,7 @@ type AttestationData struct {
 	ExtraData            tpmutil.U16Bytes
 	ClockInfo            ClockInfo
 	FirmwareVersion      uint64
+	AttestedNvInfo       *NvInfo
 	AttestedCertifyInfo  *CertifyInfo
 	AttestedQuoteInfo    *QuoteInfo
 	AttestedCreationInfo *CreationInfo
@@ -691,6 +692,10 @@ func DecodeAttestationData(in []byte) (*AttestationData, error) {
 	// parsing of Certify & Creation attestation data for now. If you need
 	// support for other attestation types, add them here.
 	switch ad.Type {
+	case TagAttestNv:
+		if ad.AttestedNvInfo, err = decodeNvInfo(buf); err != nil {
+			return nil, fmt.Errorf("decoding AttestedNvInfo: %v", err)
+		}
 	case TagAttestCertify:
 		if ad.AttestedCertifyInfo, err = decodeCertifyInfo(buf); err != nil {
 			return nil, fmt.Errorf("decoding AttestedCertifyInfo: %v", err)
@@ -819,6 +824,33 @@ func (ci CertifyInfo) encode() ([]byte, error) {
 		return nil, fmt.Errorf("encoding QualifiedName: %v", err)
 	}
 	return concat(n, qn)
+}
+
+// NvInfo contains NV_Certify specific data for TPMS_ATTEST.
+type NvInfo struct {
+	Name          Name
+	Offset        uint16
+	NvContents    tpmutil.RawBytes
+}
+
+func decodeNvInfo(in *bytes.Buffer) (*NvInfo, error) {
+	var ci NvInfo
+
+	n, err := DecodeName(in)
+	if err != nil {
+		return nil, fmt.Errorf("decoding Name: %v", err)
+	}
+	ci.Name = *n
+
+    if err := tpmutil.UnpackBuf(in, &out.Offset); err != nil {
+		return nil, fmt.Errorf("decoding offset: %v", err)
+	}
+
+    if err := tpmutil.UnpackBuf(in, &out.NvContents); err != nil {
+		return nil, fmt.Errorf("decoding NvContents: %v", err)
+	}
+
+	return &ci, nil
 }
 
 // QuoteInfo represents a TPMS_QUOTE_INFO structure.
