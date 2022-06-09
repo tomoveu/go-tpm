@@ -834,13 +834,13 @@ type NvInfo struct {
 }
 
 func decodeNvInfo(in *bytes.Buffer) (*NvInfo, error) {
-	var ci NvInfo
+	var out NvInfo
 
 	n, err := DecodeName(in)
 	if err != nil {
 		return nil, fmt.Errorf("decoding Name: %v", err)
 	}
-	ci.Name = *n
+	out.Name = *n
 
     if err := tpmutil.UnpackBuf(in, &out.Offset); err != nil {
 		return nil, fmt.Errorf("decoding offset: %v", err)
@@ -850,7 +850,7 @@ func decodeNvInfo(in *bytes.Buffer) (*NvInfo, error) {
 		return nil, fmt.Errorf("decoding NvContents: %v", err)
 	}
 
-	return &ci, nil
+	return &out, nil
 }
 
 // QuoteInfo represents a TPMS_QUOTE_INFO structure.
