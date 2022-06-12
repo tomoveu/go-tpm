@@ -830,7 +830,8 @@ func (ci CertifyInfo) encode() ([]byte, error) {
 type NvInfo struct {
 	Name          Name
 	Offset        uint16
-	NvContents    tpmutil.RawBytes
+	NvContentSize uint16
+	NvGpioState   uint8
 }
 
 func decodeNvInfo(in *bytes.Buffer) (*NvInfo, error) {
@@ -846,7 +847,11 @@ func decodeNvInfo(in *bytes.Buffer) (*NvInfo, error) {
 		return nil, fmt.Errorf("decoding offset: %v", err)
 	}
 
-    if err := tpmutil.UnpackBuf(in, &out.NvContents); err != nil {
+    if err := tpmutil.UnpackBuf(in, &out.NvContentSize); err != nil {
+		return nil, fmt.Errorf("decoding NvContents: %v", err)
+	}
+
+    if err := tpmutil.UnpackBuf(in, &out.NvGpioState); err != nil {
 		return nil, fmt.Errorf("decoding NvContents: %v", err)
 	}
 
